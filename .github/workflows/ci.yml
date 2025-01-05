@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.19"
+
+      # Cache dependencies to speed up builds
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: |
+          go mod tidy
+
+      # Run tests
+      - name: Run Tests
+        run: |
+          go test ./... -v
+
+      # Build the application
+      - name: Build Application
+        run: |
+          go build ./src/cmd/k8s.go
+          ls -lah
+
+      # #  Upload build artifacts
+      # - name: Upload Build Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: go-app-binary
+      #     path: build/main
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy Application
+        run: |
+          echo "Your deployment logic here, e.g., SCP the binary, or use Kubernetes"
