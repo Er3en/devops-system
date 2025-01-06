@@ -24,4 +24,5 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         push: true
+        file: docker/Dockerfile
         tags: devops-system/go-server:${{ github.sha }} , devops-system/go-server:latest
