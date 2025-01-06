@@ -30,4 +30,4 @@ jobs:
       with:
         push: true
         file: docker/Dockerfile
-        tags: devops-system/go-server:${{ github.sha }} , devops-system/go-server:latest
+        tags: ghcr.io/er3en/devops-system/go:${{ github.sha }}, ghcr.io/er3en/devops-system/go:latest
