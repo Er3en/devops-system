@@ -1,53 +1,31 @@
 #!/bin/bash
 
-# Default values from arguments
-FEATURE_BRANCH=$1
-MAIN_BRANCH=$2
-REMOTE=origin
-
-# Check if FEATURE_BRANCH is empty
+# Check if the feature branch was passed as an argument
 if [ -z "$FEATURE_BRANCH" ]; then
-    if [ -n "$GITHUB_HEAD_REF" ]; then
-        # If running as part of a PR, use the PR head ref
-        FEATURE_BRANCH="$GITHUB_HEAD_REF"
-    else
-        echo "No feature branch specified and not running in a PR context. Exiting."
-        echo "Usage: $0 <feature-branch> <main-branch>"
-        exit 1
-    fi
+  # If no feature branch argument is provided, get the current branch from the SCM system (Git)
+  FEATURE_BRANCH=$(git symbolic-ref --short HEAD)
+  echo "No feature branch provided. Using current branch: $FEATURE_BRANCH"
 fi
 
-# Check if MAIN_BRANCH is empty, default to 'main'
-if [ -z "$MAIN_BRANCH" ]; then
-    MAIN_BRANCH="main"
-fi
+# Get the main branch (passed as an argument or hardcoded)
+MAIN_BRANCH=${1:-main}
 
-echo "Feature branch: $FEATURE_BRANCH"
-echo "Main branch: $MAIN_BRANCH"
+echo "Feature Branch: $FEATURE_BRANCH"
+echo "Main Branch: $MAIN_BRANCH"
 
-# Fetch the latest changes from remote
-echo "Fetching latest changes..."
-git fetch "$REMOTE"
+# Fetch the latest changes from the remote
+git fetch origin
 
-# Switch to the feature branch
-echo "Switching to feature branch: $FEATURE_BRANCH"
-git checkout "$FEATURE_BRANCH" || {
-    echo "Failed to checkout feature branch $FEATURE_BRANCH"
-    exit 1
-}
+# Checkout the main branch
+git checkout $MAIN_BRANCH
+git pull origin $MAIN_BRANCH
 
-# Perform the rebase
-echo "Rebasing $FEATURE_BRANCH onto $MAIN_BRANCH..."
-git rebase "$REMOTE/$MAIN_BRANCH" || {
-    echo "Rebase failed."
-    exit 1
-}
+# Rebase the feature branch onto the main branch
+git checkout $FEATURE_BRANCH
+git pull origin $FEATURE_BRANCH
+git rebase $MAIN_BRANCH
 
-# Push the rebased branch (if needed)
-echo "Pushing the rebased feature branch..."
-git push "$REMOTE" "$FEATURE_BRANCH" || {
-    echo "Failed to push the rebased feature branch."
-    exit 1
-}
+# Push the rebased feature branch
+git push origin $FEATURE_BRANCH --force
 
-echo "Rebase successful."
+echo "Rebase complete."
