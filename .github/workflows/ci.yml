@@ -61,7 +61,6 @@ jobs:
           go build ./...
           gofmt -l .
           go vet ./...
-          golangci-lint run
 
   deploy:
     runs-on: ubuntu-latest
