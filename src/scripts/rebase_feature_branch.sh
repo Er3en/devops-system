@@ -16,6 +16,12 @@ if [ -z "$FEATURE_BRANCH" ] || [ -z "$MAIN_BRANCH" ]; then
     usage
 fi
 
+# Check if the feature branch is the same as the main branch
+if [[ "$FEATURE_BRANCH" == "$MAIN_BRANCH" ]]; then
+  echo "Feature branch is the same as main. Exiting."
+  exit 0
+fi
+
 # Fetch the latest changes
 echo "Fetching latest changes..."
 git fetch "$REMOTE" || { echo "Failed to fetch from remote"; exit 1; }
