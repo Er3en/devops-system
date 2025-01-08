@@ -23,18 +23,24 @@ jobs:
           git push origin HEAD
         env:
           GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      - name: Debug
+        run: |
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+          echo "GITHUB_HEAD_REF=$GITHUB_HEAD_REF"
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "Current branch from git: $(git symbolic-ref --short HEAD)"
 
       - name: Run Rebase Script
         run: |
           if [[ $GITHUB_EVENT_NAME == 'pull_request' ]]; then
-            # If it's a pull request, get the feature branch name from head_ref
+            # In a PR event, use GITHUB_HEAD_REF to get the feature branch
             echo "Feature branch is $GITHUB_HEAD_REF"
-            echo "FEATURE_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
+            echo "FEATURE_BRANCH=$GITHUB_HEAD_REF"
           else
-            # For other events like push or manual triggers, use the current branch
+            # For push or manual event, use the current branch
             FEATURE_BRANCH=$(git symbolic-ref --short HEAD)
             echo "Feature branch is $FEATURE_BRANCH"
-            echo "FEATURE_BRANCH=$FEATURE_BRANCH" >> $GITHUB_ENV
+            echo "FEATURE_BRANCH=$FEATURE_BRANCH"
           fi
           bash -x ./src/scripts/rebase_feature_branch.sh $FEATURE_BRANCH "main"
 
