@@ -24,7 +24,7 @@ jobs:
 
       - name: Run Rebase Script
         run: |
-          bash -x ./rebase_feature_branch.sh "${{ inputs.feature_branch }}" "${{ inputs.main_branch }}"
+          bash -x ./rebase_feature_branch.sh $GITHUB_REF_NAME "main"
 
       - name: Set up Go
         uses: actions/setup-go@v4
