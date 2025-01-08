@@ -26,8 +26,16 @@ jobs:
 
       - name: Run Rebase Script
         run: |
-          FEATURE_BRANCH=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
-          echo "Feature branch is $FEATURE_BRANCH"
+          if [[ $GITHUB_EVENT_NAME == 'pull_request' ]]; then
+            # If it's a pull request, get the feature branch name from head_ref
+            echo "Feature branch is $GITHUB_HEAD_REF"
+            echo "FEATURE_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
+          else
+            # For other events like push or manual triggers, use the current branch
+            FEATURE_BRANCH=$(git symbolic-ref --short HEAD)
+            echo "Feature branch is $FEATURE_BRANCH"
+            echo "FEATURE_BRANCH=$FEATURE_BRANCH" >> $GITHUB_ENV
+          fi
           bash -x ./src/scripts/rebase_feature_branch.sh $FEATURE_BRANCH "main"
 
       - name: Set up Go
