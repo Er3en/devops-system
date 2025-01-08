@@ -26,7 +26,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
 
       - name: Run Rebase Script
-        run: bash -x ./src/scripts/rebase_feature_branch.sh "${{ github.head_ref }}" "main"
+        run: |
+          FEATURE_BRANCH=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
+          echo "Feature branch is $FEATURE_BRANCH"
+          bash -x ./src/scripts/rebase_feature_branch.sh $FEATURE_BRANCH "main"
 
       - name: Set up Go
         uses: actions/setup-go@v4
