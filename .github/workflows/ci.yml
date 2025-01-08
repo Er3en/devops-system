@@ -23,8 +23,7 @@ jobs:
           git config --global user.email "actions@github.com"
 
       - name: Run Rebase Script
-        run: |
-          bash -x ./rebase_feature_branch.sh $GITHUB_REF_NAME "main"
+        run: bash -x ./rebase_feature_branch.sh "${{ github.ref_name }}" "main"
 
       - name: Set up Go
         uses: actions/setup-go@v4
