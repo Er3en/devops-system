@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  repository: go-minikube-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "250m"
+  limits:
+    memory: "128Mi"
+    cpu: "500m"
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8080
