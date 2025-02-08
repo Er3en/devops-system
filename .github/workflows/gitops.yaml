@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build and Push the image
-    runs-on: [ self-hosted, example-runnerdeploy-k6kwl-mxw5l ]
+    runs-on: example-runnerdeploy-k6kwl-mxw5l 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
