@@ -1,0 +1,42 @@
+# ansible-playbook -i hosts/hosts.yml  win_playbook.yaml --extra-vars "@ssh_vars.yaml"
+- name: win_prep
+  hosts: all
+  become: false
+  gather_facts: true
+
+  tasks:
+  - name: Save the result of 'whoami' in 'whoami_out'
+    ansible.windows.win_command: whoami
+    register: whoami_out
+
+  - name: Display 'whoami' output
+    debug:
+     var: whoami_out.stdout
+
+  - name: Get disk space info
+    win_shell: Get-Volume | Select-Object -Property DriveLetter, SizeRemaining | ConvertTo-Json -Compress
+    register: windows_disk_space
+
+  - name: Parse disk space info
+    set_fact:
+      disk_space_info: "{{ windows_disk_space.stdout | from_json }}"
+  
+  - name: Determine disk with most available space
+    set_fact:
+      largest_disk: "{{ disk_space_info | max(attribute='SizeRemaining') }}"
+
+  - name: Print disk space information
+    debug:
+      var: largest_disk
+
+  - name: Create temporary directory on the largest disk
+    ansible.windows.win_tempfile:
+      state: directory
+      suffix: .temp
+      path: "{{ largest_disk.DriveLetter }}:"
+      prefix: "ansible_temp"
+    register: temp_directory
+
+  - name: Print the created temporary directory
+    debug:
+      var: temp_directory.path
