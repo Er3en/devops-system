@@ -1,0 +1,4 @@
+namespace: kaniko
+ubuntuImage: ubuntu:latest
+kanikoImage: gcr.io/kaniko-project/executor:debug
+dockerConfigSecret: ghcr-token

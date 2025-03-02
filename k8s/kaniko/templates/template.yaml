@@ -1,0 +1,36 @@
+apiVersion: v1  
+kind: Pod  
+metadata:  
+  name: {{ .Values.pod_name }}  
+  namespace: {{ .Values.namespace }}  
+spec:  
+  containers:  
+  - name: ubuntu  
+    image: {{ .Values.ubuntuImage }}  
+    command: ["/bin/sh", "-c", "sleep infinity"]  
+    env:  
+    - name: HOME  
+      value: /workspace  
+    volumeMounts:  
+    - name: workspace  
+      mountPath: /workspace  
+    workingDir: /workspace  
+  - name: kaniko  
+    image: {{ .Values.kanikoImage }}  
+    command: ["/bin/sh", "-c", "sleep infinity"]  
+    env:  
+    - name: HOME  
+      value: /workspace  
+    volumeMounts:  
+      - name: docker-config  
+        mountPath: /kaniko/.docker  
+      - name: workspace  
+        mountPath: /workspace  
+    workingDir: /workspace  
+  restartPolicy: Never  
+  volumes:  
+    - name: docker-config  
+      secret:  
+        secretName: {{ .Values.dockerConfigSecret }}  
+    - name: workspace  
+      emptyDir: {}  
